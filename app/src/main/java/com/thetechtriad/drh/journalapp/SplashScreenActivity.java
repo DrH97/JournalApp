@@ -9,11 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
@@ -25,6 +28,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
 
     private static final String TAG = SplashScreenActivity.class.getSimpleName();
     GoogleSignInClient mGoogleSignInClient;
+    private ProgressBar mProgressBar;
 
     private static final int RC_SIGN_IN = 1;
 
@@ -109,6 +113,8 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
+        mProgressBar = findViewById(R.id.progress);
+
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +133,12 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        findViewById(R.id.googleSignIn).setOnClickListener(this);
+        SignInButton signInButton = findViewById(R.id.googleSignIn);
+
+        signInButton.setOnClickListener(this);
+
+        TextView textView = (TextView) signInButton.getChildAt(0);
+        textView.setText(R.string.google_sign_in_btn_text);
 
     }
 
@@ -140,6 +151,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
 
     private void updateUI(GoogleSignInAccount account) {
         if (account != null) {
+            mProgressBar.setVisibility(View.VISIBLE);
             mControlsView.setVisibility(View.GONE);
 
             startActivity(new Intent(this, MainActivity.class));
@@ -170,7 +182,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         if (actionBar != null) {
             actionBar.hide();
         }
-//        mControlsView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
@@ -203,6 +215,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.googleSignIn:
+                mProgressBar.setVisibility(View.VISIBLE);
                 signIn();
                 break;
         }
@@ -216,6 +229,8 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        mProgressBar.setVisibility(View.GONE);
 
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);

@@ -6,7 +6,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_header_desc">User Image</string>
     <string name="title_activity_main">MainActivity</string>
 
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
@@ -14,4 +14,7 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="note_header">Note Header</string>
     <string name="note_content">Note Content</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="home_title">My Journal</string>
+    <string name="google_sign_in_btn_text">Sign In With Google</string>
 </resources>

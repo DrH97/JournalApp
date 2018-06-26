@@ -6,14 +6,31 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
+    android:background="@color/black_overlay"
     tools:showIn="@layout/app_bar_main">
 
     <android.support.v7.widget.RecyclerView
-        android:background="@color/black_overlay"
         android:id="@+id/note_recycler"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="@dimen/card_view_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:background="@android:color/white"
+        android:textAlignment="gravity"
+        android:gravity="center"
+        android:id="@+id/no_notes"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/no_notes"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/colorPrimary"
+        android:textSize="26sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

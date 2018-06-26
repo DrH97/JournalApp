@@ -1,24 +1,29 @@
 package com.thetechtriad.drh.journalapp;
 
 public class Note {
-    private String Title;
+    private String userId;
+    private String title;
     private String content;
     private String date;
-    private Boolean isFavourite;
+    private Boolean favourite;
 
-    Note(String title, String content, String date, Boolean isFavourite) {
-        Title = title;
+    public Note() {
+    }
+
+    Note(String userId, String title, String content, String date, Boolean favourite) {
+        this.userId = userId;
+        this.title = title;
         this.content = content;
         this.date = date;
-        this.isFavourite = isFavourite;
+        this.favourite = favourite;
     }
 
     public String getTitle() {
-        return Title;
+        return title;
     }
 
     public void setTitle(String title) {
-        Title = title;
+        this.title = title;
     }
 
     public String getContent() {
@@ -30,11 +35,11 @@ public class Note {
     }
 
     public Boolean getFavourite() {
-        return isFavourite;
+        return favourite;
     }
 
     public void setFavourite(Boolean favourite) {
-        isFavourite = favourite;
+        this.favourite = favourite;
     }
 
     public String getDate() {
@@ -43,5 +48,13 @@ public class Note {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

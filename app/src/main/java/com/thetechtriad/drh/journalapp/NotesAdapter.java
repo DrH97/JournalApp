@@ -50,8 +50,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         holder.content.setText(note.getContent());
         holder.date.setText(note.getDate());
 
-        if (note.getFavourite())
-            holder.favourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite_24dp));
+//        if (note != null)
+            if (note.getFavourite())
+                holder.favourite.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite_24dp));
     }
 
     @Override

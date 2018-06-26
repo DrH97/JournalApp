@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,24 +12,36 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class SplashScreenActivity extends AppCompatActivity implements View.OnClickListener {
+public class SplashScreenActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = SplashScreenActivity.class.getSimpleName();
     GoogleSignInClient mGoogleSignInClient;
     private ProgressBar mProgressBar;
+    private FirebaseAuth mAuth;
+    GoogleApiClient mGoogleApiClient;
 
     private static final int RC_SIGN_IN = 1;
 
@@ -128,10 +141,19 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
 
+        mAuth = FirebaseAuth.getInstance();
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(SplashScreenActivity.this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         SignInButton signInButton = findViewById(R.id.googleSignIn);
 
@@ -139,22 +161,29 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
 
         TextView textView = (TextView) signInButton.getChildAt(0);
         textView.setText(R.string.google_sign_in_btn_text);
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        Log.e(TAG, "Starting activity");
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        FirebaseUser account = mAuth.getCurrentUser();
         updateUI(account);
     }
 
-    private void updateUI(GoogleSignInAccount account) {
+    private void updateUI(FirebaseUser account) {
+
+        Log.e(TAG, "Updating UI ");
         if (account != null) {
+            Log.e(TAG, "Account not null");
             mProgressBar.setVisibility(View.VISIBLE);
             mControlsView.setVisibility(View.GONE);
 
             startActivity(new Intent(this, MainActivity.class));
+        } else {
+            mControlsView.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 
@@ -215,6 +244,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.googleSignIn:
+                Log.e(TAG, "Sign in button clicked");
                 mProgressBar.setVisibility(View.VISIBLE);
                 signIn();
                 break;
@@ -222,31 +252,95 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void signIn() {
+        mControlsView.setVisibility(View.GONE);
+        Log.e(TAG, "Signing In");
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "Starting activity on result");
 
-        mProgressBar.setVisibility(View.GONE);
+        if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
 
-        if (requestCode == RC_SIGN_IN) {
+            Log.e(TAG, "Request code good");
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
+        } else {
+            updateUI(null);
         }
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> task) {
+
+        Log.e(TAG, "Handling sign in result");
         try {
             GoogleSignInAccount account = task.getResult(ApiException.class);
+            firebaseAuthWithGoogle(account);
 
-            updateUI(account);
+//            updateUI(account);
         } catch (ApiException e) {
 
-            Log.w(TAG, "Sign In Fail code: " + e.getStatusCode());
+            Log.e(TAG, "Sign In Fail code: " + e.getStatusCode());
             updateUI(null);
         }
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+
+        Log.e(TAG, "Firebase Auth started");
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        Log.e(TAG, "Firebase Auth Complete");
+                        if (task.isSuccessful()) {
+
+                            Log.e(TAG, "Firebase Auth successful");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+
+                            Log.e(TAG, "Firebase auth unsuccessful", task.getException());
+                            signOut();
+                            updateUI(null);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this, "Connection failed, please try again...", Toast.LENGTH_SHORT).show();
+    }
+
+    private void signOut() {
+        Toast.makeText(this, "This acount has been disabled", Toast.LENGTH_SHORT).show();
+        FirebaseAuth.getInstance().signOut();
+
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        revokeAccess();
+                    }
+                });
+    }
+
+    private void revokeAccess() {
+        mGoogleSignInClient.revokeAccess()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                    }
+                });
     }
 }

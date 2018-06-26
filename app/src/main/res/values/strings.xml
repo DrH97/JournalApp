@@ -20,5 +20,8 @@
     <string name="share_note">Share Note</string>
     <string name="favourite_note">Favourite Note</string>
     <string name="edit_note">Edit Note</string>
-    <string name="note_date">2018-07-01</string>
+    <string name="note_date">2018–07–01</string>
+    <string name="delete_note">Delete Note</string>
+    <string name="save_note">Save</string>
+    <string name="no_notes">You have no notes…</string>
 </resources>

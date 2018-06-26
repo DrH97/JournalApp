@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,11 +23,17 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -49,6 +55,10 @@ public class MainActivity extends AppCompatActivity
 
     private List<Note> noteList = new ArrayList<>();
 
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mNotesDatabaseReference;
+    private ChildEventListener mChildEventListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,12 +66,20 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.e(TAG, userId);
+        if (mFirebaseDatabase == null) {
+            mFirebaseDatabase = FirebaseDatabase.getInstance();
+            mNotesDatabaseReference = mFirebaseDatabase.getReference().child("notes").child(userId);
+        }
+
+        mNotesDatabaseReference.keepSynced(true);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(getApplicationContext(), CreateNoteActivity.class));
             }
         });
 
@@ -87,26 +105,74 @@ public class MainActivity extends AppCompatActivity
 
         setUserData(getUserData());
         setNotesData();
+
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                findViewById(R.id.no_notes).setVisibility(View.GONE);
+                Note note = dataSnapshot.getValue(Note.class);
+                noteList.add(note);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                noteList = new ArrayList<>();
+                setNotesData();
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                noteList = new ArrayList<>();
+                setNotesData();
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                noteList = new ArrayList<>();
+                setNotesData();
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        mNotesDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if (noteList.size() < 1) {
+            findViewById(R.id.no_notes).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.no_notes).setVisibility(View.GONE);
+        }
     }
 
     private void setNotesData() {
-        Note note = new Note("First Note", "This is the first note of the app", getDate(), false);
-        noteList.add(note);
-
-        note = new Note("Welcome", "This is the welcome note of the app", getDate(), true);
-        noteList.add(note);
-
-        note = new Note("2nd Note", "This is the 2nd note of the app", getDate(), false);
-        noteList.add(note);
-
-        note = new Note("Another Note", "This is another note of the app", getDate(), false);
-        noteList.add(note);
-
-        note = new Note("Ala! Note", "What is going on???!", getDate(), true);
-        noteList.add(note);
-
-        note = new Note("Long Trial Note, with long nammeeeee", "This is the longest note ever, i'm trying to make it long and see if i can still see all this content or nah, if possible then yess we made: otherwise, crap crap crapppp!", getDate(), true);
-        noteList.add(note);
+//        Note note = new Note("First Note", "This is the first note of the app", getDate(), false);
+//        noteList.add(note);
+//
+//        note = new Note("Welcome", "This is the welcome note of the app", getDate(), true);
+//        noteList.add(note);
+//
+//        note = new Note("2nd Note",  "This is the 2nd note of the app", getDate(), false);
+//        noteList.add(note);
+//
+//        note = new Note("Another Note",  "This is another note of the app", getDate(), false);
+//        noteList.add(note);
+//
+//        note = new Note("Ala! Note",  "What is going on???!", getDate(), true);
+//        noteList.add(note);
+//
+//        note = new Note("Long Trial Note, with long nammeeeee",  "This is the longest note ever, i'm trying to make it long and see if i can still see all this content or nah, if possible then yess we made: otherwise, crap crap crapppp!", getDate(), true);
+//        noteList.add(note);
 
         mAdapter.notifyDataSetChanged();
     }
@@ -128,22 +194,32 @@ public class MainActivity extends AppCompatActivity
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
-    private GoogleSignInAccount getUserData() {
+    private FirebaseUser getUserData() {
 
-        return GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+//        return GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+        return FirebaseAuth.getInstance().getCurrentUser();
     }
 
-    private void setUserData(GoogleSignInAccount acct) {
-        String personName = null, personGivenName = null, personFamilyName = null, personEmail = null, personId = null;
+    private void setUserData(FirebaseUser acct) {
+        String personName = null, personGivenName = null, personFamilyName = null, personEmail = null, providerId = null, personProviderId = null, personId = null;
         Uri personPhoto = null;
+        boolean emailVerified;
 
         if (acct != null) {
             personName = acct.getDisplayName();
-            personGivenName = acct.getGivenName();
-            personFamilyName = acct.getFamilyName();
+//
             personEmail = acct.getEmail();
-            personId = acct.getId();
+//
             personPhoto = acct.getPhotoUrl();
+            emailVerified = acct.isEmailVerified();
+            personId = acct.getUid();
+
+//            for (UserInfo profile : acct.getProviderData()) {
+//                providerId = profile.getProviderId();
+//                personGivenName = profile.getGivenName();
+//                personFamilyName = acct.getFamilyName();
+//                personProviderId = acct.getId();
+//            }
         }
 
         ImageView navHeaderImage = header.findViewById(R.id.nav_header_image);
@@ -155,7 +231,6 @@ public class MainActivity extends AppCompatActivity
         if (personEmail != null)
          navHeaderSubtitle.setText(personEmail);
         if (personPhoto != null) {
-            Log.e(TAG, personPhoto.toString());
             Glide.with(this).load(personPhoto)
                     .into(navHeaderImage);
 
@@ -222,6 +297,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void signOut() {
+        FirebaseAuth.getInstance().signOut();
+
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override

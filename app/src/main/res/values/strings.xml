@@ -17,4 +17,8 @@
     <string name="sign_out">Sign Out</string>
     <string name="home_title">My Journal</string>
     <string name="google_sign_in_btn_text">Sign In With Google</string>
+    <string name="share_note">Share Note</string>
+    <string name="favourite_note">Favourite Note</string>
+    <string name="edit_note">Edit Note</string>
+    <string name="note_date">2018-07-01</string>
 </resources>

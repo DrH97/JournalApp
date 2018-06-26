@@ -11,6 +11,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,12 +29,25 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     View header;
     GoogleSignInClient mGoogleSignInClient;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    private List<Note> noteList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +65,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        mRecyclerView = findViewById(R.id.note_recycler);
+
+        mRecyclerView.setHasFixedSize(true);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new NotesAdapter(this, noteList);
+        mRecyclerView.setAdapter(mAdapter);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -61,6 +86,37 @@ public class MainActivity extends AppCompatActivity
         header = navigationView.getHeaderView(0);
 
         setUserData(getUserData());
+        setNotesData();
+    }
+
+    private void setNotesData() {
+        Note note = new Note("First Note", "This is the first note of the app", getDate(), false);
+        noteList.add(note);
+
+        note = new Note("Welcome", "This is the welcome note of the app", getDate(), true);
+        noteList.add(note);
+
+        note = new Note("2nd Note", "This is the 2nd note of the app", getDate(), false);
+        noteList.add(note);
+
+        note = new Note("Another Note", "This is another note of the app", getDate(), false);
+        noteList.add(note);
+
+        note = new Note("Ala! Note", "What is going on???!", getDate(), true);
+        noteList.add(note);
+
+        note = new Note("Long Trial Note, with long nammeeeee", "This is the longest note ever, i'm trying to make it long and see if i can still see all this content or nah, if possible then yess we made: otherwise, crap crap crapppp!", getDate(), true);
+        noteList.add(note);
+
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private String getDate() {
+        Date today = Calendar.getInstance().getTime();
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+        dateFormat.format(today);
+
+        return dateFormat.format(today);
     }
 
     @Override

@@ -24,4 +24,16 @@
     <string name="delete_note">Delete Note</string>
     <string name="save_note">Save</string>
     <string name="no_notes">You have no notes…</string>
+    <string name="delete">Delete</string>
+    <string name="action_search">Search</string>
+
+    <string name="search_hint">Title or content…</string>
+    <string name="nav_my_notes">My Notes</string>
+    <string name="nav_user_title">User</string>
+    <string name="action_delete">Delete</string>
+    <string name="no_trashed_notes">You have no trashed notes…</string>
+    <string name="nav_trash">Trash</string>
+    <string name="action_view">View</string>
+    <string name="restore">Restore</string>
+    <string name="delete_icon">Delete Icon</string>
 </resources>

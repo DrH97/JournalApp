@@ -141,35 +141,48 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
 
-        mAuth = FirebaseAuth.getInstance();
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(SplashScreenActivity.this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .addOnConnectionFailedListener(this)
-                .build();
-
         SignInButton signInButton = findViewById(R.id.googleSignIn);
 
         signInButton.setOnClickListener(this);
 
         TextView textView = (TextView) signInButton.getChildAt(0);
         textView.setText(R.string.google_sign_in_btn_text);
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.e(TAG, "Starting activity");
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        FirebaseUser account = mAuth.getCurrentUser();
-        updateUI(account);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "Resuming activity");
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
+        if (account == null) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(SplashScreenActivity.this, this)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+        }
+
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        updateUI(user);
     }
 
     private void updateUI(FirebaseUser account) {

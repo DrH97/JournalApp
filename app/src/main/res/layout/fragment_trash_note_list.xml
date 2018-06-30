@@ -6,19 +6,20 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    android:background="@color/black_overlay"
+    android:background="@android:color/white"
     tools:showIn="@layout/app_bar_main"
-    android:id="@+id/main_content">
+    android:id="@+id/trash_fragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/note_recycler"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/card_view_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/list"
+        android:name="com.thetechtriad.drh.journalapp.TrashNoteFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_overlay"
+        tools:context=".TrashNoteFragment"
+        tools:listitem="@layout/fragment_trash_note" />
 
     <TextView
         android:background="@android:color/white"
@@ -27,7 +28,7 @@
         android:id="@+id/no_notes"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="@string/no_notes"
+        android:text="@string/no_trashed_notes"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/colorPrimary"
         android:textSize="26sp"

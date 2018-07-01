@@ -132,11 +132,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         header = navigationView.getHeaderView(0);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         mChildEventListener = new ChildEventListener() {
             @Override
@@ -164,6 +159,12 @@ public class MainActivity extends AppCompatActivity
 
             }
         };
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         mNotesDatabaseReference.addChildEventListener(mChildEventListener);
     }
@@ -353,7 +354,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_notes) {
             // Handle the camera action
-
+            mAdapter.notifyDataSetChanged();
             FragmentManager fm = getFragmentManager();
             fm.popBackStackImmediate();
 //            FragmentTransaction ft = fm.beginTransaction();

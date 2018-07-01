@@ -230,6 +230,24 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     }
 
     void restoreNote(Note note, int position, String note_id, DatabaseReference notesDatabaseReference) {
+
+        restore(notesDatabaseReference, note_id);
+
+        notesFiltered.add(position, note);
+
+        notifyItemInserted(position);
+    }
+
+    void restoreNoteFromTrash(Note note, int position, String note_id, DatabaseReference notesDatabaseReference) {
+
+        restore(notesDatabaseReference, note_id);
+
+        notesFiltered.remove(position);
+
+        notifyItemRemoved(position);
+    }
+
+    void restore(DatabaseReference notesDatabaseReference, String note_id) {
         mNotesDatabaseReference = notesDatabaseReference;
 
         noteId = note_id;
@@ -241,11 +259,6 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         noteRef.updateChildren(noteUpdates);
 
         Log.e("NA", "Note restored");
-
-        notesFiltered.add(position, note);
-
-        notifyDataSetChanged();
-//        notifyItemInserted(position);
     }
 
     public interface NotesAdapterListener {

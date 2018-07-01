@@ -92,39 +92,6 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
 
         mNotesDatabaseReference.keepSynced(true);
 
-        mChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.e("TNR", "Child added");
-                updateRecyclerView(dataSnapshot.getValue(Note.class));
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                Log.e("TNR", "Child changed");
-                updateRecyclerViewChild(dataSnapshot.getValue(Note.class));
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("TNR", "Child removed");
-                updateRecyclerView(dataSnapshot.getValue(Note.class));
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.e("TNR", "Child moved");
-                updateRecyclerView(dataSnapshot.getValue(Note.class));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-
-        mNotesDatabaseReference.addChildEventListener(mChildEventListener);
     }
 
     @Override
@@ -175,11 +142,18 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
     private void updateRecyclerView(Note value) {
         noteList.add(value);
 
+        Log.e("TNF", "NoteList size: "+noteList.size());
+        if (noteList.size() == 0) {
+            getView().findViewById(R.id.no_trash_notes).setVisibility(View.VISIBLE);
+        } else {
+            getView().findViewById(R.id.no_trash_notes).setVisibility(View.GONE);
+        }
+
         if (noteList.size() > 0)
             for (int i = 0; i < noteList.size(); i++) {
                 if (noteList.get(i).getDeleted() == null) {
                     noteList.remove(i);
-                } else if (noteList.get(i).getDeleted()) {
+                } else if (!noteList.get(i).getDeleted()) {
                     noteList.remove(i);
                 }
             }
@@ -218,11 +192,12 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trash_note_list, container, false);
 
-//        if (noteList.size() == 0) {
-//            view.findViewById(R.id.no_notes).setVisibility(View.VISIBLE);
-//        } else {
-//            view.findViewById(R.id.no_notes).setVisibility(View.GONE);
-//        }
+        Log.e("TNF", "NoteList size: "+noteList.size());
+        if (noteList.size() == 0) {
+            view.findViewById(R.id.no_trash_notes).setVisibility(View.VISIBLE);
+        } else {
+            view.findViewById(R.id.no_trash_notes).setVisibility(View.GONE);
+        }
 
         mAdapter = new NotesAdapter(getActivity(), noteList, this, true);
         // Set the adapter
@@ -240,6 +215,40 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
 
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerNoteTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
+
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.e("TNR", "Child added");
+                updateRecyclerView(dataSnapshot.getValue(Note.class));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                Log.e("TNR", "Child changed");
+                updateRecyclerViewChild(dataSnapshot.getValue(Note.class));
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                Log.e("TNR", "Child removed");
+                updateRecyclerView(dataSnapshot.getValue(Note.class));
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.e("TNR", "Child moved");
+                updateRecyclerView(dataSnapshot.getValue(Note.class));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        mNotesDatabaseReference.addChildEventListener(mChildEventListener);
 
         return view;
     }
@@ -269,7 +278,7 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
             final Note restoredNote = noteList.get(viewHolder.getAdapterPosition());
             final int restoredNoteIndex = viewHolder.getAdapterPosition();
 
-            mAdapter.restoreNote(restoredNote, restoredNoteIndex, restoredNote.getNoteId(), mNotesDatabaseReference);
+            mAdapter.restoreNoteFromTrash(restoredNote, restoredNoteIndex, restoredNote.getNoteId(), mNotesDatabaseReference);
         }
     }
 

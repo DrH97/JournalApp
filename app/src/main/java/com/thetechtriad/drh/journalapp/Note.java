@@ -62,7 +62,7 @@ public class Note {
         this.userId = userId;
     }
 
-    String getNoteId() {
+    public String getNoteId() {
         return noteId;
     }
 
@@ -70,7 +70,7 @@ public class Note {
         this.noteId = noteId;
     }
 
-    Boolean getDeleted() {
+    public Boolean getDeleted() {
         return deleted;
     }
 

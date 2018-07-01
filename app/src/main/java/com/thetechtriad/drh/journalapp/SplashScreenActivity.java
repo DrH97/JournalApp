@@ -123,7 +123,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_splash_screen);
 
         mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
+        mControlsView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.fullscreen_content);
 
         mProgressBar = findViewById(R.id.progress);
@@ -190,7 +190,7 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         if (account != null) {
             Log.e(TAG, "Account not null");
             mProgressBar.setVisibility(View.VISIBLE);
-            mControlsView.setVisibility(View.GONE);
+//            mControlsView.setVisibility(View.GONE);
 
             startActivity(new Intent(this, MainActivity.class));
         } else {

@@ -117,9 +117,10 @@ public class CreateNoteActivity extends AppCompatActivity {
             if (newNote) {
                 noteId = mNotesDatabaseReference.push().getKey();
 
+//                Toast.makeText(this, ""+noteId, Toast.LENGTH_SHORT).show();
+                assert noteId != null;
                 note = new Note(noteId, userId, noteHeader.getText().toString(), noteContent.getText().toString(), getTime(), false, false);
 
-                assert noteId != null;
                 mNotesDatabaseReference.child(noteId).setValue(note);
 
                 newNote = false;

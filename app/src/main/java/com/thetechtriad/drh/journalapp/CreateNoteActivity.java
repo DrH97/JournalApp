@@ -132,8 +132,8 @@ public class CreateNoteActivity extends AppCompatActivity {
             }
 
         } else {
-            if (!newNote)
-                deleteNote();
+
+            deleteNote();
         }
     }
 
@@ -142,13 +142,15 @@ public class CreateNoteActivity extends AppCompatActivity {
     }
 
     private void deleteNote() {
-        DatabaseReference noteRef = mNotesDatabaseReference.child(noteId);
-        Map<String, Object> noteUpdates = new HashMap<>();
-        noteUpdates.put("deleted", true);
+        if (!newNote) {
+            DatabaseReference noteRef = mNotesDatabaseReference.child(noteId);
+            Map<String, Object> noteUpdates = new HashMap<>();
+            noteUpdates.put("deleted", true);
 
-        noteRef.updateChildren(noteUpdates);
+            noteRef.updateChildren(noteUpdates);
 
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
     }
 }

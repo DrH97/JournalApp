@@ -1,8 +1,10 @@
 package com.thetechtriad.drh.journalapp;
 
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -59,9 +61,7 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public TrashNoteFragment() {
-
-    }
+    public TrashNoteFragment() {}
 
     @SuppressWarnings("unused")
     public static TrashNoteFragment newInstance(int columnCount) {
@@ -101,16 +101,20 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                Log.e("TNR", "Child changed");
                 updateRecyclerViewChild(dataSnapshot.getValue(Note.class));
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                Log.e("TNR", "Child removed");
                 updateRecyclerView(dataSnapshot.getValue(Note.class));
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.e("TNR", "Child moved");
                 updateRecyclerView(dataSnapshot.getValue(Note.class));
             }
 
@@ -173,7 +177,9 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
 
         if (noteList.size() > 0)
             for (int i = 0; i < noteList.size(); i++) {
-                if (!noteList.get(i).getDeleted()) {
+                if (noteList.get(i).getDeleted() == null) {
+                    noteList.remove(i);
+                } else if (noteList.get(i).getDeleted()) {
                     noteList.remove(i);
                 }
             }
@@ -185,16 +191,17 @@ public class TrashNoteFragment extends Fragment implements NotesAdapter.NotesAda
 
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void updateRecyclerViewChild(Note value) {
+
         if (noteList.size() > 0)
             for (int i = 0; i < noteList.size(); i++) {
                 if (noteList.get(i).getNoteId().equals(value.getNoteId())) {
                     noteList.remove(i);
-                    noteList.add(i, value);
+                    mAdapter.notifyItemRemoved(i);
+                    return;
                 }
             }
-
-        mAdapter.notifyDataSetChanged();
     }
 
     private void sortRecyclerData(List<Note> noteList) {

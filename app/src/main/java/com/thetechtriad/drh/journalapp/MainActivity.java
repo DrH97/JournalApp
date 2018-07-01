@@ -171,21 +171,23 @@ public class MainActivity extends AppCompatActivity
     private void updateRecyclerView(Note value) {
         noteList.add(value);
 
-        if (noteList.size() > 0)
-        for (int i = 0; i < noteList.size(); i++) {
-            if (noteList.get(i).getDeleted()) {
-                noteList.remove(i);
-            }
-        }
-
-        sortRecyclerData(noteList);
-        mAdapter.notifyDataSetChanged();
-
-        if (noteList.size() == 0) {
-            findViewById(R.id.no_notes).setVisibility(View.VISIBLE);
-        } else {
+        if (noteList.size() > 0) {
             findViewById(R.id.no_notes).setVisibility(View.GONE);
+            for (int i = 0; i < noteList.size(); i++) {
+                if (noteList.get(i).getDeleted() == null) {
+                    noteList.remove(i);
+                } else if (noteList.get(i).getDeleted()) {
+                    noteList.remove(i);
+                }
+            }
+
+            sortRecyclerData(noteList);
+            mAdapter.notifyDataSetChanged();
+
+        } else {
+            findViewById(R.id.no_notes).setVisibility(View.VISIBLE);
         }
+
     }
 
     private void updateRecyclerViewChild(Note value) {

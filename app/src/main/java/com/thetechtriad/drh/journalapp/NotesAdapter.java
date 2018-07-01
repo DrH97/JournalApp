@@ -244,7 +244,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
         notesFiltered.add(position, note);
 
-        notifyItemInserted(position);
+        notifyDataSetChanged();
+//        notifyItemInserted(position);
     }
 
     public interface NotesAdapterListener {

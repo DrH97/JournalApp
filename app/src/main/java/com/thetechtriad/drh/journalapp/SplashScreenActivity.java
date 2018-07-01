@@ -148,21 +148,6 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
         TextView textView = (TextView) signInButton.getChildAt(0);
         textView.setText(R.string.google_sign_in_btn_text);
 
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(TAG, "Starting activity");
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e(TAG, "Resuming activity");
-
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
         if (account == null) {
@@ -178,6 +163,20 @@ public class SplashScreenActivity extends AppCompatActivity implements View.OnCl
                     .addOnConnectionFailedListener(this)
                     .build();
         }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e(TAG, "Starting activity");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "Resuming activity");
 
         mAuth = FirebaseAuth.getInstance();
 

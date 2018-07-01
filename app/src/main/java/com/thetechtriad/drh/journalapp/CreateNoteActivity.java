@@ -121,7 +121,7 @@ public class CreateNoteActivity extends AppCompatActivity {
 
                 assert noteId != null;
                 mNotesDatabaseReference.child(noteId).setValue(note);
-                newNote = false;
+
             } else {
                 DatabaseReference noteRef = mNotesDatabaseReference.child(noteId);
                 Map<String, Object> noteUpdates = new HashMap<>();
